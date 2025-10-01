@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ceramic Studio Training Tracker</title>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Lucide React icons as inline SVG components
+        const Check = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        );
+
+        const Download = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+        );
+
+        const User = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+        );
+
+        const AlertCircle = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        );
+
+        const Filter = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+        );
+
+        const TrainingTracker = () => {
+            const staff = ['Sav', 'Jane', 'AJ', 'Zoe', 'Lauren', 'Mia'];
+            
+            const skillsByCategory = {
+                'Front Desk Operations': [
+                    { skill: 'Todoist (AM PM Weekly tasks)', critical: true },
+                    { skill: 'Locking/Unlocking doors (F1 Employee code)', critical: true },
+                    { skill: 'Window Cleaning', critical: false },
+                    { skill: 'Wiping down surfaces (desk tables chairs shelves)', critical: false },
+                    { skill: 'Desk Organization', critical: false },
+                    { skill: 'Pick up Shelves Organization (oldest to newest)', critical: false },
+                    { skill: 'Plant Care', critical: false },
+                    { skill: 'Inventory Sheets', critical: true },
+                    { skill: 'SOP Navigation', critical: true },
+                    { skill: 'Studio Tours (waivers check-in member orientation)', critical: true },
+                    { skill: 'RGP Calendar Bookings', critical: true },
+                    { skill: 'Member Benefits & Badges', critical: true },
+                    { skill: 'Firing Token System (pricing member priority)', critical: true },
+                    { skill: 'Product knowledge (clay types inventory)', critical: true },
+                    { skill: 'Retail Item Organization', critical: false },
+                    { skill: 'Cancellation/No show policies ($5 fee)', critical: true },
+                    { skill: 'POS Transactions (Tokens Clay Tools)', critical: true },
+                    { skill: 'Checking Pottery.front.desk email', critical: true },
+                    { skill: 'Assigning online Waivers and Transactions', critical: true }
+                ],
+                'Facility Maintenance': [
+                    { skill: 'Kitchenette maintenance (sink fridge counters)', critical: false },
+                    { skill: 'Self care station reset', critical: false },
+                    { skill: 'Bathroom Cleaning (mirrors sinks toilets restock)', critical: true },
+                    { skill: 'Fridge Clear-out', critical: false },
+                    { skill: 'Lockers Excel sheet management', critical: true },
+                    { skill: 'Lost and Found location and policy', critical: false },
+                    { skill: 'Locker audit (Monthly)', critical: false },
+                    { skill: 'Towel Drop-off and Pick-up', critical: false },
+                    { skill: 'Dusting (Desk Shelves Gallery)', critical: false },
+                    { skill: 'Watering Plants', critical: false },
+                    { skill: 'Updating Class Flyers', critical: false },
+                    { skill: 'Updating Announcement board', critical: false },
+                    { skill: 'Restock First Aid kit', critical: true }
+                ],
+                'Studio Operations': [
+                    { skill: 'Power washing Floors (Weekly)', critical: true },
+                    { skill: 'Mopping Floors', critical: true },
+                    { skill: 'Opening Studio Setup', critical: true },
+                    { skill: 'Closing Studio tasks', critical: true },
+                    { skill: 'Clean Clay sinks', critical: true },
+                    { skill: 'Clean out floor clay trap', critical: true },
+                    { skill: 'Changing traps under clay sink', critical: true },
+                    { skill: 'Empty out clay scrap bins', critical: true },
+                    { skill: 'Vacuum day use cubbies', critical: false },
+                    { skill: 'Wedging table cleaning and water bucket changes', critical: true },
+                    { skill: 'Draping Plastic Clearout procedure', critical: false },
+                    { skill: 'Daily Studio Walkthrough', critical: true },
+                    { skill: 'Daily Studio Report', critical: true },
+                    { skill: 'Submit Facility Requests', critical: true },
+                    { skill: 'Enforcing Studio Policies', critical: true }
+                ],
+                'Equipment Operation': [
+                    { skill: 'Extruder Maintenance (barrel and die holder)', critical: true },
+                    { skill: 'Slab roller Operation', critical: true },
+                    { skill: 'Slab roller Canvas Maintenance (separate white/dark)', critical: true },
+                    { skill: 'Wheel Operation (on/off setup direction change)', critical: true },
+                    { skill: 'Wheel Troubleshooting', critical: true },
+                    { skill: 'Wheel maintenance and pedal adjustment', critical: false },
+                    { skill: 'Clean Slab roller', critical: false },
+                    { skill: 'Maintain Slab roller canvases', critical: true },
+                    { skill: 'Clean extruder and account for all die', critical: true },
+                    { skill: 'Pug mill operation', critical: true },
+                    { skill: 'Clean pug mill', critical: true }
+                ],
+                'Hand Building & Tables': [
+                    { skill: 'Ware board maintenance (sponge mold management)', critical: true },
+                    { skill: 'Hand building table reset (supplies per table)', critical: true },
+                    { skill: 'Clean handbuilding tables', critical: true },
+                    { skill: 'Wipe down handbuilding supplies (rolling pins spray bottles)', critical: false },
+                    { skill: 'Vacuum under tables', critical: false },
+                    { skill: 'Treat Wareboards for mold and seal wood', critical: false }
+                ],
+                'Shelving & Organization': [
+                    { skill: 'OS Shelf policies (older than previous Monday recycled)', critical: true },
+                    { skill: 'Weekly OS clear out procedure', critical: true },
+                    { skill: 'Abandon Bisqueware Organizing/RGP Notes', critical: true },
+                    { skill: 'Abandon Glazeware Organizing/RGP Notes', critical: true },
+                    { skill: 'Monday Open studio shelving clear out', critical: true },
+                    { skill: 'Relocate abandoned class work to OS shelving', critical: false },
+                    { skill: 'Parsing out 5lbs clay', critical: false },
+                    { skill: 'Basic Tool kit assembly', critical: false },
+                    { skill: 'Stocking Retail Cabinets', critical: false }
+                ],
+                'Carts & Stages': [
+                    { skill: 'Stages of Clay (knowledge)', critical: true },
+                    { skill: 'Cart Organization (Greenware Bisqueware Glazeware)', critical: true },
+                    { skill: 'Wipe down Greenware Carts', critical: false },
+                    { skill: 'Wipe down Bisqueware Carts', critical: false },
+                    { skill: 'Wipe down Glazeware Carts', critical: false },
+                    { skill: 'Mop under and behind carts', critical: false },
+                    { skill: 'Clear out abandoned Bisqueware', critical: false }
+                ],
+                'Glazing Station': [
+                    { skill: 'Glazing process knowledge', critical: true },
+                    { skill: 'Changing out glaze water (daily dry mat room sink only)', critical: true },
+                    { skill: 'Wipe down all glaze buckets', critical: false },
+                    { skill: 'Clean all glaze tools and brushes', critical: false },
+                    { skill: 'Wipe down underglaze bottles', critical: false },
+                    { skill: 'Glaze sponge purge', critical: false },
+                    { skill: 'Try again updates/RGP notes', critical: false },
+                    { skill: 'Drill mix Glazes (Daily)', critical: true }
+                ],
+                'Clay Recycling': [
+                    { skill: 'Refill plaster shelves', critical: true },
+                    { skill: 'Portioning and bagging clay', critical: true },
+                    { skill: 'Managing scrap bins and reclaim buckets', critical: true },
+                    { skill: 'Clay Bag Return', critical: false },
+                    { skill: 'Daily Reporting lbs. Recycled', critical: true },
+                    { skill: 'Reclaiming Clay process', critical: true },
+                    { skill: 'Reuse poly bags for reclaim', critical: false },
+                    { skill: 'Pug and bag Reclaim Clay', critical: true },
+                    { skill: 'Plastic purge', critical: false },
+                    { skill: 'Sponge Purge', critical: false }
+                ],
+                'Kiln Operations': [
+                    { skill: 'Kiln Room Safety', critical: true },
+                    { skill: 'Update Firing Schedule and board', critical: true },
+                    { skill: 'Fill out Kiln Logs (Figure 8)', critical: true },
+                    { skill: 'Loading Bisque Fire', critical: true },
+                    { skill: 'Unloading Bisque Fire', critical: true },
+                    { skill: 'Loading Glaze Fire', critical: true },
+                    { skill: 'Unloading Glaze Fire', critical: true },
+                    { skill: 'Kiln Shelves Maintenance (Grinding re-washing)', critical: false },
+                    { skill: 'Vacuum Kilns and Kiln room', critical: false },
+                    { skill: 'Organize and maintain Kiln stilts', critical: false },
+                    { skill: 'Kiln Maintenance (Element resetting/replacement)', critical: false }
+                ],
+                'Dry Materials Room': [
+                    { skill: 'Dry Materials Room Safety (WEAR RESPIRATOR)', critical: true },
+                    { skill: 'Mixing Dry mix Glazes', critical: false },
+                    { skill: 'Mixing in-house Glazes', critical: false },
+                    { skill: 'Cleaning Dry Material Room', critical: false },
+                    { skill: 'Test tile Production', critical: false },
+                    { skill: 'Change out Glaze Trap under sink', critical: false },
+                    { skill: 'Update Safety Equipment', critical: true },
+                    { skill: 'Glaze Testing and formulation', critical: false },
+                    { skill: 'Test tile updates for new glazes', critical: false }
+                ],
+                'Classes & Instruction': [
+                    { skill: 'Instructing Classes', critical: true },
+                    { skill: 'Class/Demo prep', critical: true },
+                    { skill: 'Class Clean-up', critical: true },
+                    { skill: 'Class Shelf Organization', critical: false },
+                    { skill: 'Curriculum writing and updating', critical: false },
+                    { skill: 'Class Audits', critical: false },
+                    { skill: 'Feedback Survey reviews', critical: false }
+                ]
+            };
+
+            const [progress, setProgress] = useState(() => {
+                const saved = localStorage.getItem('ceramicTrainingProgress');
+                if (saved) {
+                    return JSON.parse(saved);
+                }
+                
+                const initial = {};
+                staff.forEach(person => {
+                    initial[person] = {};
+                    Object.entries(skillsByCategory).forEach(([category, skills]) => {
+                        skills.forEach(item => {
+                            initial[person][`${category}::${item.skill}`] = {
+                                completed: false,
+                                trainer: '',
+                                date: '',
+                                notes: ''
+                            };
+                        });
+                    });
+                });
+                return initial;
+            });
+
+            const [selectedStaff, setSelectedStaff] = useState('Sav');
+            const [filterCategory, setFilterCategory] = useState('all');
+            const [showOnlyIncomplete, setShowOnlyIncomplete] = useState(false);
+
+            useEffect(() => {
+                localStorage.setItem('ceramicTrainingProgress', JSON.stringify(progress));
+            }, [progress]);
+
+            const toggleSkill = (person, category, skill) => {
+                setProgress(prev => ({
+                    ...prev,
+                    [person]: {
+                        ...prev[person],
+                        [`${category}::${skill}`]: {
+                            ...prev[person][`${category}::${skill}`],
+                            completed: !prev[person][`${category}::${skill}`].completed,
+                            date: !prev[person][`${category}::${skill}`].completed ? new Date().toISOString().split('T')[0] : prev[person][`${category}::${skill}`].date
+                        }
+                    }
+                }));
+            };
+
+            const updateSkillField = (person, category, skill, field, value) => {
+                setProgress(prev => ({
+                    ...prev,
+                    [person]: {
+                        ...prev[person],
+                        [`${category}::${skill}`]: {
+                            ...prev[person][`${category}::${skill}`],
+                            [field]: value
+                        }
+                    }
+                }));
+            };
+
+            const getStats = (person) => {
+                const allSkills = Object.values(skillsByCategory).flat();
+                const total = allSkills.length;
+                const completed = allSkills.filter(item => 
+                    progress[person][`${getCategoryForSkill(item.skill)}::${item.skill}`]?.completed
+                ).length;
+                const criticalTotal = allSkills.filter(s => s.critical).length;
+                const criticalCompleted = allSkills.filter(item => 
+                    item.critical && progress[person][`${getCategoryForSkill(item.skill)}::${item.skill}`]?.completed
+                ).length;
+                
+                return { total, completed, criticalTotal, criticalCompleted, percentage: Math.round((completed / total) * 100) };
+            };
+
+            const getCategoryForSkill = (skillName) => {
+                for (const [category, skills] of Object.entries(skillsByCategory)) {
+                    if (skills.some(s => s.skill === skillName)) return category;
+                }
+                return '';
+            };
+
+            const exportData = () => {
+                const person = selectedStaff;
+                let csv = `Training Progress Report - ${person}\nDate: ${new Date().toLocaleDateString()}\n\n`;
+                csv += 'Category,Skill,Critical,Completed,Trainer,Date,Notes\n';
+                
+                Object.entries(skillsByCategory).forEach(([category, skills]) => {
+                    skills.forEach(item => {
+                        const p = progress[person][`${category}::${item.skill}`];
+                        csv += `"${category}","${item.skill}","${item.critical ? 'Yes' : 'No'}","${p.completed ? 'Yes' : 'No'}","${p.trainer}","${p.date}","${p.notes}"\n`;
+                    });
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${person}_training_progress.csv`;
+                a.click();
+            };
+
+            const exportAllData = () => {
+                let csv = 'Ceramic Studio Training Progress - All Staff\n';
+                csv += `Export Date: ${new Date().toLocaleDateString()}\n\n`;
+                
+                staff.forEach(person => {
+                    const stats = getStats(person);
+                    csv += `\n${person} - ${stats.completed}/${stats.total} Skills (${stats.percentage}%)\n`;
+                    csv += 'Category,Skill,Critical,Completed,Trainer,Date,Notes\n';
+                    
+                    Object.entries(skillsByCategory).forEach(([category, skills]) => {
+                        skills.forEach(item => {
+                            const p = progress[person][`${category}::${item.skill}`];
+                            csv += `"${category}","${item.skill}","${item.critical ? 'Yes' : 'No'}","${p.completed ? 'Yes' : 'No'}","${p.trainer}","${p.date}","${p.notes}"\n`;
+                        });
+                    });
+                    csv += '\n';
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `all_staff_training_progress.csv`;
+                a.click();
+            };
+
+            const filteredCategories = Object.entries(skillsByCategory).reduce((acc, [category, skills]) => {
+                if (filterCategory !== 'all' && category !== filterCategory) return acc;
+                
+                const filteredSkills = skills.filter(item => {
+                    if (showOnlyIncomplete && progress[selectedStaff][`${category}::${item.skill}`]?.completed) {
+                        return false;
+                    }
+                    return true;
+                });
+                
+                if (filteredSkills.length > 0) {
+                    acc[category] = filteredSkills;
+                }
+                return acc;
+            }, {});
+
+            const currentStats = getStats(selectedStaff);
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-blue-50 p-4">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border-t-4 border-orange-500">
+                            <div className="flex items-center justify-between mb-4">
+                                <div>
+                                    <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                                        🏺 Ceramic Studio Training Tracker
+                                    </h1>
+                                    <p className="text-gray-600 mt-1">Track skills and progress for your team</p>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={exportData}
+                                        className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                                    >
+                                        <Download className="w-4 h-4" />
+                                        Export {selectedStaff}
+                                    </button>
+                                    <button
+                                        onClick={exportAllData}
+                                        className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
+                                    >
+                                        <Download className="w-4 h-4" />
+                                        Export All
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-6 gap-3">
+                                {staff.map(person => {
+                                    const stats = getStats(person);
+                                    return (
+                                        <button
+                                            key={person}
+                                            onClick={() => setSelectedStaff(person)}
+                                            className={`p-4 rounded-xl transition-all ${
+                                                selectedStaff === person
+                                                    ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg scale-105'
+                                                    : 'bg-gray-50 hover:bg-gray-100 text-gray-700'
+                                            }`}
+                                        >
+                                            <div className="flex items-center justify-center gap-2 mb-2">
+                                                <User className="w-5 h-5" />
+                                                <span className="font-semibold">{person}</span>
+                                            </div>
+                                            <div className="text-sm">
+                                                {stats.percentage}%
+                                            </div>
+                                            <div className="w-full bg-white/30 rounded-full h-2 mt-2">
+                                                <div
+                                                    className={`h-2 rounded-full transition-all ${
+                                                        selectedStaff === person ? 'bg-white' : 'bg-orange-500'
+                                                    }`}
+                                                    style={{ width: `${stats.percentage}%` }}
+                                                />
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-4 gap-4 mb-6">
+                            <div className="bg-white rounded-xl shadow p-6 border-l-4 border-blue-500">
+                                <div className="text-3xl font-bold text-blue-600">{currentStats.completed}</div>
+                                <div className="text-sm text-gray-600">Skills Completed</div>
+                                <div className="text-xs text-gray-500 mt-1">out of {currentStats.total}</div>
+                            </div>
+                            <div className="bg-white rounded-xl shadow p-6 border-l-4 border-green-500">
+                                <div className="text-3xl font-bold text-green-600">{currentStats.percentage}%</div>
+                                <div className="text-sm text-gray-600">Overall Progress</div>
+                            </div>
+                            <div className="bg-white rounded-xl shadow p-6 border-l-4 border-red-500">
+                                <div className="text-3xl font-bold text-red-600">{currentStats.criticalCompleted}/{currentStats.criticalTotal}</div>
+                                <div className="text-sm text-gray-600">Critical Skills</div>
+                            </div>
+                            <div className="bg-white rounded-xl shadow p-6 border-l-4 border-purple-500">
+                                <div className="text-3xl font-bold text-purple-600">{currentStats.total - currentStats.completed}</div>
+                                <div className="text-sm text-gray-600">Remaining</div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-xl shadow p-4 mb-6 flex gap-4 items-center">
+                            <Filter className="w-5 h-5 text-gray-600" />
+                            <select
+                                value={filterCategory}
+                                onChange={(e) => setFilterCategory(e.target.value)}
+                                className="px-4 py-2 border border-gray-300 rounded-lg"
+                            >
+                                <option value="all">All Categories</option>
+                                {Object.keys(skillsByCategory).map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={showOnlyIncomplete}
+                                    onChange={(e) => setShowOnlyIncomplete(e.target.checked)}
+                                    className="w-4 h-4"
+                                />
+                                <span className="text-gray-700">Show only incomplete</span>
+                            </label>
+                        </div>
+
+                        <div className="space-y-4">
+                            {Object.entries(filteredCategories).map(([category, skills]) => {
+                                const categoryCompleted = skills.filter(item => 
+                                    progress[selectedStaff][`${category}::${item.skill}`]?.completed
+                                ).length;
+                                
+                                return (
+                                    <div key={category} className="bg-white rounded-xl shadow-lg overflow-hidden">
+                                        <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4">
+                                            <div className="flex justify-between items-center">
+                                                <h3 className="text-xl font-bold">{category}</h3>
+                                                <div className="flex items-center gap-4">
+                                                    <span className="text-sm">{categoryCompleted} / {skills.length} completed</span>
+                                                    <div className="w-32 bg-white/30 rounded-full h-2">
+                                                        <div
+                                                            className="bg-white h-2 rounded-full transition-all"
+                                                            style={{ width: `${(categoryCompleted / skills.length) * 100}%` }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="divide-y divide-gray-200">
+                                            {skills.map(item => {
+                                                const skillProgress = progress[selectedStaff][`${category}::${item.skill}`];
+                                                
+                                                return (
+                                                    <div
+                                                        key={item.skill}
+                                                        className={`p-4 transition-colors ${
+                                                            skillProgress.completed ? 'bg-green-50' : 'hover:bg-gray-50'
+                                                        }`}
+                                                    >
+                                                        <div className="flex items-start gap-4">
+                                                            <button
+                                                                onClick={() => toggleSkill(selectedStaff, category, item.skill)}
+                                                                className={`flex-shrink-0 w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${
+                                                                    skillProgress.completed
+                                                                        ? 'bg-green-500 border-green-500'
+                                                                        : 'border-gray-300 hover:border-green-500'
+                                                                }`}
+                                                            >
+                                                                {skillProgress.completed && <Check className="w-4 h-4 text-white" />}
+                                                            </button>
+                                                            
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center gap-2 mb-2">
+                                                                    <span className={`font-medium ${skillProgress.completed ? 'text-green-700 line-through' : 'text-gray-800'}`}>
+                                                                        {item.skill}
+                                                                    </span>
+                                                                    {item.critical && (
+                                                                        <span className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                                                                            <AlertCircle className="w-3 h-3" />
+                                                                            CRITICAL
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                
+                                                                <div className="grid grid-cols-3 gap-3">
+                                                                    <input
+                                                                        type="text"
+                                                                        placeholder="Trainer name"
+                                                                        value={skillProgress.trainer}
+                                                                        onChange={(e) => updateSkillField(selectedStaff, category, item.skill, 'trainer', e.target.value)}
+                                                                        className="px-3 py-1 border border-gray-300 rounded text-sm"
+                                                                    />
+                                                                    <input
+                                                                        type="date"
+                                                                        value={skillProgress.date}
+                                                                        onChange={(e) => updateSkillField(selectedStaff, category, item.skill, 'date', e.target.value)}
+                                                                        className="px-3 py-1 border border-gray-300 rounded text-sm"
+                                                                    />
+                                                                    <input
+                                                                        type="text"
+                                                                        placeholder="Notes"
+                                                                        value={skillProgress.notes}
+                                                                        onChange={(e) => updateSkillField(selectedStaff, category, item.skill, 'notes', e.target.value)}
+                                                                        className="px-3 py-1 border border-gray-300 rounded text-sm"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-800">
+                            <strong>💾 Auto-Save:</strong> All progress is automatically saved in your browser. Data persists between sessions. 
+                            Export regularly to CSV for backup and record-keeping.
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<TrainingTracker />, document.getElementById('root'));
+    </script>
+</body>
+</html>
